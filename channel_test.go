@@ -56,3 +56,24 @@ func TestCreateChannel(t *testing.T) {
 	PASS
 	*/
 }
+
+func GiveMeResponse(channel chan string) { // membuat function dengan parameter channel
+	// jadi parameter di atas tidak perlu lagi pointer, karena langsung reference data aslinya
+	time.Sleep(2 * time.Second) // artinya akan sleep selama 2 detik
+	channel <- "Budiman Rasyid" // ini memasukkan data ke dalam channel
+	fmt.Println("Selesai Mengirim Data ke Channel")
+}
+
+func TestChannelAsParameter(t *testing.T) { // membuat func unit test sebagai parameter
+	channel := make(chan string) // membuat channel lalu disimpan ke dalam var channel
+	// setelah membuat channel kita close dengan menggunakan defer, jadi
+	// defer ini mau error atau tidak tetap di close
+	defer close(channel)
+
+	go GiveMeResponse(channel) // menjalankan goroutine untuk function dengan parameter
+	data := <-channel          // ini untuk menerima data dari channel ke dalam var data
+	fmt.Println(data)          // untuk menampilkan isi data tersebut
+	fmt.Println("Channel berhasil mengularkan datanya")
+
+	time.Sleep(5 * time.Second) // artinya akan sleep selama 5 detik, untuk menunggu goroutine diatas
+}
