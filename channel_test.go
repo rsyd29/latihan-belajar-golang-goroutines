@@ -57,10 +57,11 @@ func TestCreateChannel(t *testing.T) {
 	*/
 }
 
+// Channel Sebagai Parameter video 91
 func GiveMeResponse(channel chan string) { // membuat function dengan parameter channel
 	// jadi parameter di atas tidak perlu lagi pointer, karena langsung reference data aslinya
 	time.Sleep(2 * time.Second) // artinya akan sleep selama 2 detik
-	channel <- "Budiman Rasyid" // ini memasukkan data ke dalam channel
+	channel <- "Budiman Rasyid" // ini mengirim data ke dalam channel
 	fmt.Println("Selesai Mengirim Data ke Channel")
 }
 
@@ -77,3 +78,43 @@ func TestChannelAsParameter(t *testing.T) { // membuat func unit test sebagai pa
 
 	time.Sleep(5 * time.Second) // artinya akan sleep selama 5 detik, untuk menunggu goroutine diatas
 }
+
+// Channel In dan Out video 92
+/**
+ini hanya boleh mengirim channel dengan menambahkan <- setelah chan
+contoh func OnlyIn
+*/
+func OnlyIn(channel chan<- string) {
+	time.Sleep(2 * time.Second)           // artinya akan sleep selama 2 detik
+	channel <- "Budiman Rasyid Zainuddin" // ini mengirim data ke dalam channel
+	// data := <- channel // error: receive from send-only type chan<- string
+}
+
+/**
+ini hanya boleh menerima channel dengan menambahkan <- sebelum chan
+contoh func OnlyOut
+*/
+func OnlyOut(channel <-chan string) {
+	// channel <- "Budiman Rasyid Zainuddin" // error: channel <- "Budiman Rasyid Zainuddin" (send to receive-only type <-chan string
+	data := <-channel // ini untuk menerima data dari channel ke dalam var data
+	fmt.Println(data) // untuk menampilkan isi data tersebut
+}
+
+// membuat testing
+func TestInOutChannel(t *testing.T) {
+	channel := make(chan string) // membuat channel dengan tipe data string, lalu dimasukkan ke dalam var channel
+	defer close(channel)         // untuk close channel
+
+	go OnlyIn(channel)  // menjalankan goroutine untuk function OnlyIn dengan parameter channel
+	go OnlyOut(channel) // menjalankan goroutine untuk function OnlyOut dengan parameter channel
+
+	time.Sleep(5 * time.Second) // untuk sleep selama 5 detik
+}
+
+/**
+Note:
+Jadi apabila kita paksa apabila kita memasukkan ke dalam function OnlyIn
+dimana function tersebut memiliki parameter in, lalu kita masukkan
+data := <- channel yang artinya itu untuk menerima data yang seharusnya hanya bisa
+pada function OnlyOut maka akan terjadi Error, dan sebaliknya.
+*/
