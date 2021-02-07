@@ -118,3 +118,44 @@ dimana function tersebut memiliki parameter in, lalu kita masukkan
 data := <- channel yang artinya itu untuk menerima data yang seharusnya hanya bisa
 pada function OnlyOut maka akan terjadi Error, dan sebaliknya.
 */
+
+// Buffered Channel
+func TestBufferedChannel(t *testing.T) {
+	channel := make(chan string, 3)
+	defer close(channel)
+
+	go func() { // membuat goroutine dengan anonymous function untuk mengirim data ke channel
+		// jadi apabila kita blm membuat buffer di channel tersebut maka
+		// akan terjadi error deadlock
+		channel <- "Budiman"
+		channel <- "Rasyid"
+		channel <- "Zainuddin"
+	}() // () untuk menjalankan anonymous function
+
+	go func() { // membuat goroutine dengan anonymous function untuk menerima data dari channel
+		// selanjutnya kita ambil channel tersebut
+		fmt.Println(<-channel)
+		fmt.Println(<-channel)
+		fmt.Println(<-channel)
+		// lalu apabila datanya diambil lagi, padahal datanya sudah kosong, maka akan terjadi error
+		// fmt.Println(<- channel)
+	}() // () untuk menjalankan anonymous function
+
+	time.Sleep(2 * time.Second) // sleep selama 2 detik untuk menunggu goroutine dijalankan
+	fmt.Println("Selesai")
+	// lalu apabila kita menambahkan buffer, maka seakan-akan datanya itu
+	// masuk ke dalam slot buffer terlebih dahulu
+}
+
+/**
+NOTE:
+Jadi ada sedikit berbeda sama channel yang biasa, kalau channel biasa
+apabila datanya masuk ke dalam channel, itu karena dia tidak punya
+buffer, maka otomatis dia diminta untuk menunggu sampai ada yang
+mengambil.
+
+Kalau channel tersebut ditambahkan buffer itu otomatis akan masuk
+ke dalam slot channel buffer, jadi tidak perlu menunggu lagi, kecuali
+slot buffernya sudah penuh tidak ada yang kosong, baru diminta untuk
+menunggu.
+*/
