@@ -2,6 +2,7 @@ package latihan_belajar_golang_goroutines
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -159,3 +160,32 @@ ke dalam slot channel buffer, jadi tidak perlu menunggu lagi, kecuali
 slot buffernya sudah penuh tidak ada yang kosong, baru diminta untuk
 menunggu.
 */
+
+// Range Channel
+func TestRangeChannel(t *testing.T) {
+	channel := make(chan string) // membuat channel tanpa buffered channel
+	/**
+	tanpa range channel
+	data := <- channel
+	data := <- channel
+	dst
+	pertanyaanya mau berapa kali akses memasukkan data channel ke dalam var data?
+	*/
+	// membuat goroutine untuk anonymous function
+	go func() {
+		// membuat perulangan sampai 10 kali
+		for i := 0; i < 10; i++ {
+			// akan mengirim datanya ke dalam channel
+			channel <- "Perulangan ke " + strconv.Itoa(i) // strconv untuk konversi dari int ke string
+		}
+		// setelah mengirim kita akan close channel
+		close(channel)
+		// kalau tidak di close maka perulangan data yang di bawah maka tidak akan pernah berhenti
+	}()
+	// daripada seperti di atas lebih baik seperti ini lakukan perulangan
+	for data := range channel {
+		fmt.Println("Menerima data ", data)
+	}
+	// kita tidak perlu sleep karena data diatas akan diulang terus sampai close
+	fmt.Println("Selesai")
+}
