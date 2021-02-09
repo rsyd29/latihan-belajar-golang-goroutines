@@ -236,10 +236,10 @@ func TestSelectChannel(t *testing.T) {
 	counter := 0
 	for { // perulangan
 		select {
-		case data := <-channel1:
+		case data := <-channel1: // mengambil data dari channel1 lalu disimpan ke dalam var data
 			fmt.Println("Data dari Channel 1", data)
 			counter++ // Increment Counter
-		case data := <-channel2:
+		case data := <-channel2: // mengambil data dari channel2 lalu disimpan ke dalam var data
 			fmt.Println("Data dari Channel 2", data)
 			counter++ // Increment Counter
 		}
@@ -257,3 +257,48 @@ func TestSelectChannel(t *testing.T) {
 	PASS
 	*/
 }
+
+// Default Select
+func TestDefaultSelectChannel(t *testing.T) {
+	channel1 := make(chan string) // membuat channel lalu diberi nama ke var channel1
+	channel2 := make(chan string) // membuat channel lalu diberi nama ke var channel2
+	defer close(channel1)         // setelah dikirim akan close channel1
+	defer close(channel2)         // setelah dikirim akan close channel2
+
+	go GiveMeResponse(channel1) // Membuat goroutines dan masukkan ke dalam func GiveMeResponse dengan parameter channel1
+	go GiveMeResponse(channel2) // Membuat goroutines dan masukkan ke dalam func GiveMeResponse dengan parameter channel2
+
+	counter := 0
+	for { // perulangan
+		select {
+		case data := <-channel1: // mengambil data dari channel1 lalu disimpan ke dalam var data
+			fmt.Println("Data dari Channel 1", data)
+			counter++ // Increment Counter
+		case data := <-channel2: // mengambil data dari channel2 lalu disimpan ke dalam var data
+			fmt.Println("Data dari Channel 2", data)
+			counter++ // Increment Counter
+		default: // default apabila belum ada datanya
+			fmt.Println("Menunggu Data") // maka akan menampilkan ini
+		}
+
+		if counter == 2 { // apabila Counter sudah sampai 2 maka
+			break // perulangan akan berhenti
+		}
+	}
+}
+
+/**
+Note:
+Jadi default ini untuk menunggu data apabila datanya belum masuk ke dalam select channel, maka akan dijalankan
+sebuah default, sampai datanya sudah ada di select channel.
+
+Output Program Default Select
+=== RUN   TestDefaultSelectChannel
+Menunggu Data
+Menunggu Data
+sampai 13K untuk menunggu data
+Data dari Channel 1 Budiman Rasyid
+Data dari Channel 2 Budiman Rasyid
+--- PASS: TestDefaultSelectChannel (2.16s)
+PASS
+*/
