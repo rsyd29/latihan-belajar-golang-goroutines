@@ -63,7 +63,7 @@ func GiveMeResponse(channel chan string) { // membuat function dengan parameter 
 	// jadi parameter di atas tidak perlu lagi pointer, karena langsung reference data aslinya
 	time.Sleep(2 * time.Second) // artinya akan sleep selama 2 detik
 	channel <- "Budiman Rasyid" // ini mengirim data ke dalam channel
-	fmt.Println("Selesai Mengirim Data ke Channel")
+	//fmt.Println("Selesai Mengirim Data ke Channel")
 }
 
 func TestChannelAsParameter(t *testing.T) { // membuat func unit test sebagai parameter
@@ -188,4 +188,72 @@ func TestRangeChannel(t *testing.T) {
 	}
 	// kita tidak perlu sleep karena data diatas akan diulang terus sampai close
 	fmt.Println("Selesai")
+}
+
+// Select Channel
+func TestSelectChannel(t *testing.T) {
+	channel1 := make(chan string) // membuat channel lalu diberi nama ke var channel1
+	channel2 := make(chan string) // membuat channel lalu diberi nama ke var channel2
+	defer close(channel1)         // setelah dikirim akan close channel1
+	defer close(channel2)         // setelah dikirim akan close channel2
+
+	go GiveMeResponse(channel1) // Membuat goroutines dan masukkan ke dalam func GiveMeResponse dengan parameter channel1
+	go GiveMeResponse(channel2) // Membuat goroutines dan masukkan ke dalam func GiveMeResponse dengan parameter channel2
+
+	/**
+	Jadi ini mengambil data yang paling cepat datang terlebih dahulu
+	maka dia yang akan diambil datanya
+	*/
+	// Select ke-1
+	//select { // melakukan select channel
+	//case data := <-channel1: // mengambil data dari channel1 lalu disimpan ke dalam var data
+	//	fmt.Println("Data dari Channel 1", data) // setelah itu di print datanya
+	//case data := <-channel2: // mengambil data dari channel2 lalu disimpan ke dalam var data
+	//	fmt.Println("Data dari Channel 2", data) // setelah itu di print datanya
+	//}
+	/**
+	Output
+	=== RUN   TestSelectChannel
+	Selesai Mengirim Data ke Channel
+	Data dari Channel 1 Budiman Rasyid
+	--- PASS: TestSelectChannel (2.00s)
+	PASS
+
+	Channel 2 nya tidak ke ambil, karena kita hanya melakukan select sekali
+	*/
+
+	// Select ke-2
+	//select { // melakukan select channel
+	//case data := <-channel1: // mengambil data dari channel1 lalu disimpan ke dalam var data
+	//	fmt.Println("Data dari Channel 1", data) // setelah itu di print datanya
+	//case data := <-channel2: // mengambil data dari channel2 lalu disimpan ke dalam var data
+	//	fmt.Println("Data dari Channel 2", data) // setelah itu di print datanya
+	//}
+
+	// kalau channelnya banyak lebih baik menggunakan perulangan, seperti kodingan di bawah ini
+	// kalau tanpa counter dia akan melakukan infinite loop, looping yang berulang-ulang. Maka akan terjadi deadlock
+	// oleh karena itu buatlah counter
+	counter := 0
+	for { // perulangan
+		select {
+		case data := <-channel1:
+			fmt.Println("Data dari Channel 1", data)
+			counter++ // Increment Counter
+		case data := <-channel2:
+			fmt.Println("Data dari Channel 2", data)
+			counter++ // Increment Counter
+		}
+
+		if counter == 2 { // apabila Counter sudah sampai 2 maka
+			break // perulangan akan berhenti
+		}
+	}
+	/**
+	Output Program Select Channel menggunakan Counter Perulangan
+	=== RUN   TestSelectChannel
+	Data dari Channel 1 Budiman Rasyid
+	Data dari Channel 2 Budiman Rasyid
+	--- PASS: TestSelectChannel (2.00s)
+	PASS
+	*/
 }
