@@ -14,7 +14,7 @@ func TestRaceCondition(t *testing.T) {
 		go func() {
 			for j := 1; j <= 100; j++ {
 				x = x + 1
-				fmt.Printf("x = %d + 1\n", x)
+				//fmt.Printf("x = %d + 1\n", x)
 			}
 		}()
 	}
